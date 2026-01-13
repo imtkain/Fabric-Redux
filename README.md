@@ -76,7 +76,7 @@ You'll need edit access to configure button actions and bind parameters.
 
 ## Architecture
 
-<img width="884" height="851" alt="image" src="https://github.com/user-attachments/assets/b3612acb-edc0-4034-a5b2-0e41f5d2165c" />
+<img width="682" height="460" alt="image" src="https://github.com/user-attachments/assets/fead03e7-baa0-4c6d-b30c-2a089efd04d5" />
 
 ## The Pattern: DAX Guardrails + ID Concatenation
 
