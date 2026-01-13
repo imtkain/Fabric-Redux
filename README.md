@@ -18,7 +18,7 @@ This repository provides a production-ready implementation pattern for **bulk CR
 - [CDC: History Table and Restore Points](#cdc-history-table-and-restore-points)
 - [DirectQuery Datetime Precision Issue](#directquery-datetime-precision-issue)
 - [UDF Technical Details](#udf-technical-details)
-- [External API Possibilities](#external-api-possibilities)
+- [The Art of the Possible](#the-art-of-the-possible)
 - [Why Not Lakehouse?](#why-not-lakehouse)
 - [Access Control](#access-control)
 - [Limitations & Guardrails](#limitations--guardrails)
@@ -332,7 +332,29 @@ The invoking user's identity and permissions apply to all operations.
 
 ---
 
-## External API Possibilities
+## The Art of the Possible
+
+Translytical Task Flows extend far beyond simple CRUD operations. Because Fabric UDFs run on a full Python 3.11 runtime, any HTTP-accessible service or API becomes a potential integration point. The patterns below are documented in Microsoft's official TTF Gallery and community implementations.
+
+### Demonstrated Use Cases
+
+**Azure OpenAI Integration**
+UDFs can call Azure OpenAI endpoints to generate AI-powered suggestions directly within Power BI reports. The pattern: fetch context from SQL tables, submit prompts to GPT-4o, and write results back to the database—all within a single function invocation.
+- [TTF Gallery: Custom AI Integration](https://community.fabric.microsoft.com/t5/Translytical-Task-Flow-Gallery/Custom-AI-integration/td-p/4702823)
+
+**External REST API Calls**
+Any REST endpoint accessible via the `requests` library works. Documented examples include fetching contact information from external systems, processing JSON responses, and updating database records.
+- [TTF Gallery: Augment Data on the Fly](https://community.fabric.microsoft.com/t5/Translytical-Task-Flow-Gallery/Augment-data-on-the-fly/td-p/4702500)
+
+**Microsoft Graph Workflows**
+Post approval requests to Teams channels, send emails, or trigger other Microsoft 365 workflows—all from a button click in Power BI.
+- [TTF Gallery: Approval Workflows](https://community.fabric.microsoft.com/t5/Translytical-Task-Flow-Gallery/Approval-workflows/m-p/4702782)
+
+**Data Activator Integration**
+Data Activator can trigger UDFs as actions when data conditions are met, and Activator rules can invoke Power Automate custom actions. This creates event-driven workflows where database changes automatically trigger downstream processes.
+- [Microsoft Docs: Trigger Fabric Items](https://learn.microsoft.com/en-us/fabric/real-time-intelligence/data-activator/activator-trigger-fabric-items)
+
+### External API Possibilities
 
 UDFs can call any HTTP endpoint via the `requests` library:
 
@@ -340,11 +362,30 @@ UDFs can call any HTTP endpoint via the `requests` library:
 - **Microsoft Graph**: Post to Teams, send emails, trigger workflows
 - **Any REST API**: CRM updates, webhook triggers, external system integration
 
-### Key Vault for Secrets
-
-Use the `generic_connection` decorator with `audienceType="KeyVault"` to retrieve secrets at runtime:
+**Key Vault for Secrets**
+Use the `generic_connection` decorator with `audienceType="KeyVault"` to retrieve secrets at runtime.
 
 > ⚠️ **Important**: The **invoking user must have Key Vault access** (Get permission on secrets). UDFs don't use a service identity—each user who clicks the button needs appropriate Key Vault permissions.
+
+### Theoretical Extensions (Not Yet Demonstrated)
+
+**Power Automate / Logic Apps**
+Direct connectors don't exist, but HTTP POST requests to Power Automate's "When HTTP request is received" trigger work. Requires exposing HTTP triggers and managing authentication manually.
+
+**Fabric REST API Orchestration**
+Calling Fabric REST APIs from within UDFs to trigger pipelines, notebooks, or other Fabric items is technically possible but lacks official documentation or patterns.
+- [Fabric REST API Reference](https://learn.microsoft.com/en-us/rest/api/fabric/articles/)
+
+### Constraints to Consider
+
+| Constraint | Limit |
+|------------|-------|
+| Execution timeout | 240 seconds |
+| Response size | 30 MB |
+| Request payload | 4 MB |
+| Authentication | User context only (no service principal) |
+
+Source: [UDF Service Limits](https://learn.microsoft.com/en-us/fabric/data-engineering/user-data-functions/user-data-functions-service-limits)
 
 ---
 
