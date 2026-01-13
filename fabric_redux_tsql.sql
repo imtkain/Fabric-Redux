@@ -11,9 +11,9 @@ CREATE TABLE [WH_testing].[dbo].[fact_price_table]
 (
 	[sku] [bigint] NULL,
 	[price] [decimal](16,2) NULL,
-	[created_at] [datetime2](6) NULL,
-	[updated_at] [datetime2](6) NULL,
-	[deleted_at] [datetime2](6) NULL,
+	[created_at] [datetime2](0) NULL,
+	[updated_at] [datetime2](0) NULL,
+	[deleted_at] [datetime2](0) NULL,
 	[updated_by] [varchar](100) NULL,
 	[version] [int] NULL,
 	[is_active] [int] NULL
@@ -24,9 +24,9 @@ CREATE TABLE [WH_testing].[dbo].[fact_price_table_history]
 (
 	[sku] [bigint] NULL,
 	[price] [decimal](16,2) NULL,
-	[created_at] [datetime2](6) NULL,
-	[updated_at] [datetime2](6) NULL,
-	[deleted_at] [datetime2](6) NULL,
+	[created_at] [datetime2](0) NULL,
+	[updated_at] [datetime2](0) NULL,
+	[deleted_at] [datetime2](0) NULL,
 	[updated_by] [varchar](100) NULL,
 	[version] [int] NULL,
 	[is_active] [int] NULL,
