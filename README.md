@@ -4,6 +4,26 @@ Translytical Task Flows (TTF) combine transactional updates and analytical workf
 
 This repository provides a production-ready implementation pattern for **bulk CRUD operations** (INSERT, UPDATE, DELETE, REACTIVATE) with CDC visibility, enabling multi-row write-back directly from Power BI reports.
 
+## Table of Contents
+
+- [The Core Enablers: CONCATENATEX + STRING_SPLIT](#the-core-enablers-concatenatex--string_split)
+- [What's in This Repo](#whats-in-this-repo)
+- [Test Environment Reference](#test-environment-reference)
+- [Prerequisites](#prerequisites)
+- [Architecture](#architecture)
+- [The Pattern: DAX Guardrails + ID Concatenation](#the-pattern-dax-guardrails--id-concatenation)
+- [Stored Procedure: STRING_SPLIT for Bulk Operations](#stored-procedure-string_split-for-bulk-operations)
+- [UDF: Connecting and Passing Values](#udf-connecting-and-passing-values)
+- [Power BI Wiring](#power-bi-wiring)
+- [CDC: History Table and Restore Points](#cdc-history-table-and-restore-points)
+- [DirectQuery Datetime Precision Issue](#directquery-datetime-precision-issue)
+- [UDF Technical Details](#udf-technical-details)
+- [External API Possibilities](#external-api-possibilities)
+- [Why Not Lakehouse?](#why-not-lakehouse)
+- [Access Control](#access-control)
+- [Limitations & Guardrails](#limitations--guardrails)
+- [Links & Resources](#links--resources)
+
 ## The Core Enablers: CONCATENATEX + STRING_SPLIT
 
 Multi-row write-back hinges on two functions working across the DAX → UDF → sproc boundary:
@@ -17,12 +37,12 @@ Without these two functions, you're limited to single-row operations. Everything
 
 All code is **heavily commented** to explain the "why" behind each component. The PBIP file is included for those who want to examine the Power BI configuration under the hood (TMDL, visual definitions, button wiring).
 
-| File | Description |
+| File/Folder | Description |
 |------|-------------|
 | `fabric_redux_tsql.sql` | Table DDL, view, and all stored procedures |
 | `fabric_redux_udfs.py` | All Fabric User Data Functions with decorator explanations |
 | `fabric_redux_dax.txt` | DAX measures with guardrail logic |
-| `Fabric Redux.pbip/` | Power BI Project file (semantic model + report definitions) |
+| `fabric_redux_pbip` | Power BI Project files (semantic model + report definitions) |
 
 ## Test Environment Reference
 
@@ -56,49 +76,7 @@ You'll need edit access to configure button actions and bind parameters.
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              POWER BI REPORT                                │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
-│  │   Matrix    │  │    Card     │  │    Text     │  │       Button        │ │
-│  │   Visual    │  │  (measure)  │  │   Slicer    │  │  (wired to UDF)     │ │
-│  │             │  │             │  │             │  │                     │ │
-│  │ User selects│  │ Shows IDs   │  │ User enters │  │ User clicks to      │ │
-│  │ rows here   │  │ via DAX     │  │ new value   │  │ commit changes      │ │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └──────────┬──────────┘ │
-└───────────────────────────────────────────────────────────────┼────────────┘
-                                                                 │
-                              ┌───────────────────────────────────▼───────────┐
-                              │           FABRIC USER DATA FUNCTION           │
-                              │                                               │
-                              │  • Validates inputs                           │
-                              │  • Extracts user identity from context        │
-                              │  • Calls stored procedure                     │
-                              │  • Returns summary message                    │
-                              └───────────────────────────────────┬───────────┘
-                                                                  │
-                              ┌───────────────────────────────────▼───────────┐
-                              │              STORED PROCEDURE                 │
-                              │                                               │
-                              │  • STRING_SPLIT parses ID list                │
-                              │  • Updates target table                       │
-                              │  • Inserts into history table (CDC)           │
-                              │  • Returns @@ROWCOUNT                         │
-                              └───────────────────────────────────┬───────────┘
-                                                                  │
-                              ┌───────────────────────────────────▼───────────┐
-                              │              FABRIC WAREHOUSE                 │
-                              │                                               │
-                              │  dim_price          dim_price_history         │
-                              │  (main table)       (CDC audit trail)         │
-                              └───────────────────────────────────────────────┘
-                                                                  │
-                                                                  │ DirectQuery
-                                                                  ▼
-                                                    Changes visible immediately
-```
-
----
+<img width="884" height="851" alt="image" src="https://github.com/user-attachments/assets/b3612acb-edc0-4034-a5b2-0e41f5d2165c" />
 
 ## The Pattern: DAX Guardrails + ID Concatenation
 
@@ -136,7 +114,7 @@ RETURN
 -- If more than 5: returns error message, preventing bulk "update all" accidents
 ```
 
-The 5-row guardrail is arbitrary—adjust to your organization's risk tolerance. The point is to prevent users from accidentally updating thousands of rows.
+*The 5-row guardrail is arbitrary—adjust to your organization's risk tolerance. The point is to prevent users from accidentally updating thousands of rows.*
 
 ---
 
@@ -431,11 +409,3 @@ Test both successful execution AND denied access to verify your security model.
 - **UDF Service Limits**: [learn.microsoft.com](https://learn.microsoft.com/en-us/fabric/data-engineering/user-data-functions/user-data-functions-service-limits)
 - **TTF Gallery**: [community.fabric.microsoft.com](https://community.fabric.microsoft.com/t5/Translytical-Task-Flow-Gallery/bd-p/pbi_translyticalgallery)
 - **UDF GitHub Samples**: [github.com/microsoft/fabric-user-data-functions-samples](https://github.com/microsoft/fabric-user-data-functions-samples)
-
----
-
-## Author
-
-**Tony Kain** | Senior Data Consultant | [Tuatara Consulting](https://tuataraconsulting.com)
-
-Specializing in Microsoft Fabric implementation and data strategy. Tuatara Consulting provides full-stack data services including strategy, governance, and platform modernization.
