@@ -1,0 +1,15 @@
+Selected ID Count = 
+COUNTROWS( 
+    VALUES( 'Fact Price'[SKU] ) 
+) -- Looks at the id column and returns a single-column table containing only the unique values available in the current selection context
+
+
+
+Selected Records = 
+VAR t_ids = VALUES ( 'Fact Price'[SKU])  -- Captures the list of unique IDs in the current selection context.
+VAR id_count = [Selected SKU Count]    -- References the first measure to see how many IDs are selected.
+RETURN 
+    IF ( id_count > 5, "Too many records selected, max 5",
+        CONCATENATEX ( t_ids , 'Fact Price'[SKU] , "," , 'Fact Price'[SKU] , ASC ) 
+        ) -- If 5 or fewer IDs are in the selection context, it joins them into a comma-separated string, sorted alphabetically.
+    ) -- Overall, checks the selection context; if five or fewer IDs are selected, it lists them out; otherwise, it prompts the user to narrow their filters/selection
