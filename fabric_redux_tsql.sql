@@ -7,7 +7,7 @@ Here we've got:
 Is there room for improvement on these? Absolutely. Does it demonstrate Translytical task flows' potential? Yes, it sure does.
 */
 
-CREATE TABLE [WH_testing].[dbo].[fact_price_table]
+CREATE TABLE [WH_testing].[dbo].[dim_price]
 (
 	[sku] [bigint] NULL,
 	[price] [decimal](16,2) NULL,
@@ -20,7 +20,7 @@ CREATE TABLE [WH_testing].[dbo].[fact_price_table]
 )
 GO
 
-CREATE TABLE [WH_testing].[dbo].[fact_price_table_history]
+CREATE TABLE [WH_testing].[dbo].[dim_price_history]
 (
 	[sku] [bigint] NULL,
 	[price] [decimal](16,2) NULL,
@@ -36,9 +36,30 @@ CREATE TABLE [WH_testing].[dbo].[fact_price_table_history]
 GO
 
 
+CREATE OR ALTER   VIEW vw_dim_price_history AS
+SELECT 
+    sku
+    ,price
+    ,created_at
+    ,updated_at
+    ,deleted_at
+    ,updated_by
+    ,version
+    ,is_active
+    ,operation_type
+    ,operation_timestamp
+    ,CAST(sku AS VARCHAR(20)) + ' (' + CAST(version AS VARCHAR(10)) + ')' AS sku_version
+    ,RIGHT('0000000000000000000' + CAST(sku AS VARCHAR(20)), 19) + 
+     RIGHT('0000' + CAST(version AS VARCHAR(10)), 4) AS sort_key
+FROM dbo.dim_price_history;
+
+
+GO
+
+
 --Mock data if you want it
--- -- Insert into fact_price_table
--- INSERT INTO fact_price_table (sku, price, created_at, updated_at, deleted_at, updated_by, version, is_active)
+-- -- Insert into dim_price
+-- INSERT INTO dim_price (sku, price, created_at, updated_at, deleted_at, updated_by, version, is_active)
 -- VALUES
 -- (1001, 49.99, '2025-01-15 08:30:00.000000', '2025-01-15 08:30:00.000000', NULL, 'John Smith', 1, 1),
 -- (1002, 129.50, '2025-01-16 09:15:00.000000', '2025-01-16 09:15:00.000000', NULL, 'Sarah Johnson', 1, 1),
@@ -61,8 +82,8 @@ GO
 -- (1019, 45.50, '2025-02-02 14:15:00.000000', '2025-02-02 14:15:00.000000', NULL, 'Joseph Thompson', 1, 1),
 -- (1020, 189.00, '2025-02-03 08:20:00.000000', '2025-02-03 08:20:00.000000', NULL, 'Karen Clark', 1, 1);
 
--- -- Insert into fact_price_table_history (mirror initial INSERTs)
--- INSERT INTO fact_price_table_history (sku, price, created_at, updated_at, deleted_at, updated_by, version, is_active, operation_type, operation_timestamp)
+-- -- Insert into dim_price_history (mirror initial INSERTs)
+-- INSERT INTO dim_price_history (sku, price, created_at, updated_at, deleted_at, updated_by, version, is_active, operation_type, operation_timestamp)
 -- VALUES
 -- (1001, 49.99, '2025-01-15 08:30:00.000000', '2025-01-15 08:30:00.000000', NULL, 'John Smith', 1, 1, 'INSERT', '2025-01-15 08:30:00.000000'),
 -- (1002, 129.50, '2025-01-16 09:15:00.000000', '2025-01-16 09:15:00.000000', NULL, 'Sarah Johnson', 1, 1, 'INSERT', '2025-01-16 09:15:00.000000'),
@@ -114,7 +135,7 @@ BEGIN
             ,t.updated_at = @current_timestamp  -- Last modification timestamp
             ,t.updated_by = @user_name  -- Audit: who performed the update
             ,t.version = t.version + 1  -- Increment version for optimistic concurrency tracking
-        FROM fact_price_table t
+        FROM dim_price t
         INNER JOIN cte_sku_list c
             ON t.sku = c.sku  -- Match on provided SKU list
         WHERE t.is_active = 1;  -- Only update currently active records
@@ -129,7 +150,7 @@ BEGIN
             WHERE RTRIM(LTRIM(value)) <> ''
         )
         -- Insert updated records into history table for audit trail
-        INSERT INTO fact_price_table_history (
+        INSERT INTO dim_price_history (
             sku, price, created_at, updated_at, deleted_at
             ,updated_by, version, is_active, operation_type, operation_timestamp
         )
@@ -138,7 +159,7 @@ BEGIN
             ,t.updated_by, t.version, t.is_active
             ,'UPDATE'  -- Operation type for history tracking
             ,@current_timestamp  -- When the operation occurred
-        FROM fact_price_table t
+        FROM dim_price t
         INNER JOIN cte_sku_list c
             ON t.sku = c.sku
         WHERE t.is_active = 1;  -- Select currently active records that were just updated
@@ -180,7 +201,7 @@ BEGIN
     
     BEGIN TRY
         -- Check if SKU already exists in the table (duplicate prevention)
-        IF EXISTS (SELECT 1 FROM fact_price_table WHERE sku = @sku)
+        IF EXISTS (SELECT 1 FROM dim_price WHERE sku = @sku)
         BEGIN
             -- Raise error with severity 16 (user error) and state 1
             RAISERROR('Duplicate SKU detected. SKU %I64d already exists in the table.', 16, 1, @sku);
@@ -189,7 +210,7 @@ BEGIN
         END
         
         -- Insert new price record with initial version and active status
-        INSERT INTO fact_price_table (
+        INSERT INTO dim_price (
             sku, price, created_at, updated_at, deleted_at
             ,updated_by, version, is_active
         )
@@ -203,7 +224,7 @@ BEGIN
         SET @rows_affected = @@ROWCOUNT;
         
         -- Insert newly created record into history table for audit trail
-        INSERT INTO fact_price_table_history (
+        INSERT INTO dim_price_history (
             sku, price, created_at, updated_at, deleted_at
             ,updated_by, version, is_active, operation_type, operation_timestamp
         )
@@ -212,7 +233,7 @@ BEGIN
             ,updated_by, version, is_active
             ,'INSERT'  -- Operation type for history tracking
             ,@current_timestamp  -- When the operation occurred
-        FROM fact_price_table
+        FROM dim_price
         WHERE sku = @sku;  -- Select the just-inserted record
         
         -- Commit transaction if both INSERTs succeeded
@@ -265,7 +286,7 @@ BEGIN
             ,t.updated_by = @user_name  -- Audit: who performed the deletion
             ,t.version = t.version + 1  -- Increment version for optimistic concurrency tracking
             ,t.is_active = 0  -- Mark record as inactive
-        FROM fact_price_table t
+        FROM dim_price t
         INNER JOIN cte_sku_list c
             ON t.sku = c.sku  -- Match on provided SKU list
         WHERE t.is_active = 1;  -- Only delete currently active records
@@ -280,7 +301,7 @@ BEGIN
             WHERE RTRIM(LTRIM(value)) <> ''
         )
         -- Insert deleted records into history table for audit trail
-        INSERT INTO fact_price_table_history (
+        INSERT INTO dim_price_history (
             sku, price, created_at, updated_at, deleted_at
             ,updated_by, version, is_active, operation_type, operation_timestamp
         )
@@ -289,7 +310,7 @@ BEGIN
             ,t.updated_by, t.version, t.is_active
             ,'DELETE'  -- Operation type for history tracking
             ,@current_timestamp  -- When the operation occurred
-        FROM fact_price_table t
+        FROM dim_price t
         INNER JOIN cte_sku_list c
             ON t.sku = c.sku
         WHERE t.is_active = 0  -- Select records just marked inactive
@@ -345,7 +366,7 @@ BEGIN
             ,t.updated_by = @user_name  -- Audit: who performed the reactivation
             ,t.version = t.version + 1  -- Increment version for optimistic concurrency tracking
             ,t.is_active = 1  -- Mark record as active again
-        FROM fact_price_table t
+        FROM dim_price t
         INNER JOIN cte_sku_list c
             ON t.sku = c.sku  -- Match on provided SKU list
         WHERE t.is_active = 0;  -- Only reactivate currently inactive records
@@ -360,7 +381,7 @@ BEGIN
             WHERE RTRIM(LTRIM(value)) <> ''
         )
         -- Insert reactivated records into history table for audit trail
-        INSERT INTO fact_price_table_history (
+        INSERT INTO dim_price_history (
             sku, price, created_at, updated_at, deleted_at
             ,updated_by, version, is_active, operation_type, operation_timestamp
         )
@@ -369,7 +390,7 @@ BEGIN
             ,t.updated_by, t.version, t.is_active
             ,'REACTIVATE'  -- Operation type for history tracking
             ,@current_timestamp  -- When the operation occurred
-        FROM fact_price_table t
+        FROM dim_price t
         INNER JOIN cte_sku_list c
             ON t.sku = c.sku
         WHERE t.is_active = 1  -- Select records just marked active
@@ -391,6 +412,7 @@ BEGIN
         THROW;
     END CATCH
 END;
+
 
 
 
