@@ -1,0 +1,151 @@
+table 'Dim Price History'
+	lineageTag: 72317b65-387d-4331-ac05-5b46570a470c
+
+	column SKU
+		dataType: int64
+		formatString: 0
+		sourceProviderType: bigint
+		lineageTag: cfbc478b-371e-4130-abb6-28ac6c62b785
+		summarizeBy: sum
+		sourceColumn: SKU
+
+		annotation SummarizationSetBy = Automatic
+
+	column Price
+		dataType: double
+		sourceProviderType: decimal(16, 2)
+		lineageTag: 90233599-7ec6-4e6c-a6e9-f6b740b96243
+		summarizeBy: sum
+		sourceColumn: Price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Created At'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 7286edb8-c9e7-4b46-a442-1e01e50cdb19
+		summarizeBy: none
+		sourceColumn: Created At
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Updated At'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 6ea3581f-6893-4ec6-b4e2-c9a226697bdb
+		summarizeBy: none
+		sourceColumn: Updated At
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Deleted At'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 45b88d1e-8bd6-4923-b580-89cbbae7f988
+		summarizeBy: none
+		sourceColumn: Deleted At
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Updated By'
+		dataType: string
+		sourceProviderType: varchar(100)
+		lineageTag: 0153f272-b229-43b0-abda-dc03b242e2c2
+		summarizeBy: none
+		sourceColumn: Updated By
+
+		annotation SummarizationSetBy = Automatic
+
+	column Version
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: e306b26e-7fb7-4a1f-b15b-11aca58e2578
+		summarizeBy: sum
+		sourceColumn: Version
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Is Active'
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 5b12434a-652c-47a2-8575-589226b86530
+		summarizeBy: sum
+		sourceColumn: Is Active
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Operation Type'
+		dataType: string
+		sourceProviderType: varchar(10)
+		lineageTag: a76c3c7f-2531-49b7-a9dd-f95e1ceb7319
+		summarizeBy: none
+		sourceColumn: Operation Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Operation Timestamp'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 3045b947-aa0b-4a83-bbc1-4f97d4c5e654
+		summarizeBy: none
+		sourceColumn: Operation Timestamp
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'SKU Version'
+		dataType: string
+		sourceProviderType: varchar(33)
+		lineageTag: d789bb5b-3142-4f12-be7f-06f3a7b9c79d
+		summarizeBy: none
+		sourceColumn: SKU Version
+		sortByColumn: 'Sort Key'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sort Key'
+		dataType: string
+		sourceProviderType: varchar(53)
+		lineageTag: 9d29c455-0b6b-4b19-b82b-303503280690
+		summarizeBy: none
+		sourceColumn: Sort Key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Price History' = m
+		mode: directQuery
+		source = ```
+				let
+				    Source = Sql.Database("hvftbbgkikkevoothpm25ofa34-gddv6dy5kk6elj3pe4jcnmk4pi.datawarehouse.fabric.microsoft.com", "WH_testing"),
+				    dbo_fact_price_history = Source{[Schema="dbo",Item="vw_dim_price_history"]}[Data],
+				    RenameColumns = Table.RenameColumns(dbo_fact_price_history,{
+				        {"sku", "SKU"},
+				        {"price", "Price"},
+				        {"created_at", "Created At"},
+				        {"updated_at", "Updated At"},
+				        {"deleted_at", "Deleted At"},
+				        {"updated_by", "Updated By"},
+				        {"version", "Version"},
+				        {"is_active", "Is Active"},
+				        {"operation_type", "Operation Type"},
+				        {"operation_timestamp", "Operation Timestamp"},
+				        {"sku_version", "SKU Version"},
+				        {"sort_key", "Sort Key"}        
+				    })
+				in
+				    RenameColumns
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

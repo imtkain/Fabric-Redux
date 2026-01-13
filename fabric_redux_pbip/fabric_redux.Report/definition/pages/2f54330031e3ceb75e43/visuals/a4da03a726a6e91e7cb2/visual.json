@@ -1,0 +1,195 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "a4da03a726a6e91e7cb2",
+  "position": {
+    "x": 9.8507462686567155,
+    "y": 0,
+    "z": 0,
+    "height": 713.73134328358208,
+    "width": 1269.8507462686566,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "SKU Version"
+                }
+              },
+              "queryRef": "Dim Price History.SKU Version",
+              "nativeQueryRef": "SKU Version"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "SKU"
+                }
+              },
+              "queryRef": "Sum(Dim Price History.SKU)",
+              "nativeQueryRef": "SKU"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "Version"
+                }
+              },
+              "queryRef": "Sum(Dim Price History.Version)",
+              "nativeQueryRef": "Version"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "Price"
+                }
+              },
+              "queryRef": "Sum(Dim Price History.Price)",
+              "nativeQueryRef": "Price"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "Created At"
+                }
+              },
+              "queryRef": "Dim Price History.Created At",
+              "nativeQueryRef": "Created At"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "Updated At"
+                }
+              },
+              "queryRef": "Dim Price History.Updated At",
+              "nativeQueryRef": "Updated At"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "Updated By"
+                }
+              },
+              "queryRef": "Dim Price History.Updated By",
+              "nativeQueryRef": "Updated By"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "Deleted At"
+                }
+              },
+              "queryRef": "Dim Price History.Deleted At",
+              "nativeQueryRef": "Deleted At"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "Is Active"
+                }
+              },
+              "queryRef": "Sum(Dim Price History.Is Active)",
+              "nativeQueryRef": "Is Active"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "Operation Type"
+                }
+              },
+              "queryRef": "Dim Price History.Operation Type",
+              "nativeQueryRef": "Operation Type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price History"
+                    }
+                  },
+                  "Property": "Operation Timestamp"
+                }
+              },
+              "queryRef": "Dim Price History.Operation Timestamp",
+              "nativeQueryRef": "Operation Timestamp"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Dim Price History"
+                  }
+                },
+                "Property": "SKU Version"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "e48595d2bb57a0d39a78",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "z": 11001,
+    "height": 567.43307086614175,
+    "width": 831.496062992126,
+    "tabOrder": 11001
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price"
+                    }
+                  },
+                  "Property": "SKU"
+                }
+              },
+              "queryRef": "Dim Price.SKU",
+              "nativeQueryRef": "SKU"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price"
+                    }
+                  },
+                  "Property": "Price"
+                }
+              },
+              "queryRef": "Dim Price.Price",
+              "nativeQueryRef": "Price"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price"
+                    }
+                  },
+                  "Property": "Created At"
+                }
+              },
+              "queryRef": "Dim Price.Created At",
+              "nativeQueryRef": "Created At"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price"
+                    }
+                  },
+                  "Property": "Version"
+                }
+              },
+              "queryRef": "Dim Price.Version",
+              "nativeQueryRef": "Version"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price"
+                    }
+                  },
+                  "Property": "Updated By"
+                }
+              },
+              "queryRef": "Dim Price.Updated By",
+              "nativeQueryRef": "Updated By"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Dim Price"
+                    }
+                  },
+                  "Property": "Updated At"
+                }
+              },
+              "queryRef": "Dim Price.Updated At",
+              "nativeQueryRef": "Updated At"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "1a7f1f692d5870516324",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Dim Price"
+              }
+            },
+            "Property": "SKU"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "dfa1476700a5d7001111",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Dim Price"
+              }
+            },
+            "Property": "Price"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "cb47a7d90703b6c58d0b",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Dim Price"
+              }
+            },
+            "Property": "Created At"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "ca233cd21608b44903d0",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Dim Price"
+              }
+            },
+            "Property": "Version"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "dd7953d44e86dac152b3",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Dim Price"
+              }
+            },
+            "Property": "Updated By"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "7c658438461a3e121a64",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Dim Price"
+              }
+            },
+            "Property": "Updated At"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

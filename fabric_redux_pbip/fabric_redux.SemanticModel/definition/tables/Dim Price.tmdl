@@ -1,0 +1,121 @@
+table 'Dim Price'
+	lineageTag: 68aa1bfd-f6d5-4026-8495-b73d9b508d68
+
+	measure 'Selected Records' = ```
+			
+			VAR t_ids = VALUES ( 'Dim Price'[SKU]) 
+			VAR id_count = [Selected SKU Count]
+			RETURN 
+			    IF ( id_count > 5, "Too many records selected, max 5",
+			        CONCATENATEX ( t_ids , 'Dim Price'[SKU] , "," , 'Dim Price'[SKU] , ASC ) 
+			        )
+			```
+		lineageTag: fcfdaf7a-df9a-4b42-9474-f5dc6401d754
+
+	measure 'Selected SKU Count' = COUNTROWS( VALUES( 'Dim Price'[SKU] ) )
+		formatString: 0
+		lineageTag: 3098793b-e64a-4df5-92c6-c12edef48e61
+
+	column SKU
+		dataType: int64
+		formatString: 0
+		sourceProviderType: bigint
+		lineageTag: e758f9ab-d1b4-4660-813f-d1130e71f57b
+		summarizeBy: none
+		sourceColumn: SKU
+
+		annotation SummarizationSetBy = User
+
+	column Price
+		dataType: double
+		sourceProviderType: decimal(16, 2)
+		lineageTag: 826b2c6a-a695-49aa-ab66-2a3557360852
+		summarizeBy: none
+		sourceColumn: Price
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Created At'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 66ee445b-9d3c-4900-b3dd-d12ef0b9521a
+		summarizeBy: none
+		sourceColumn: Created At
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Updated At'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: cced81ab-cec9-44cd-b118-38c7898526fe
+		summarizeBy: none
+		sourceColumn: Updated At
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Deleted At'
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: b8ffbbaa-9dbb-4db2-a1f3-99b97553e60e
+		summarizeBy: none
+		sourceColumn: Deleted At
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Updated By'
+		dataType: string
+		sourceProviderType: varchar(100)
+		lineageTag: 4e5cc22b-9060-4b6e-98d4-cdae386cfb3e
+		summarizeBy: none
+		sourceColumn: Updated By
+
+		annotation SummarizationSetBy = Automatic
+
+	column Version
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 995ed424-0869-47af-a278-74324b2c2db5
+		summarizeBy: none
+		sourceColumn: Version
+
+		annotation SummarizationSetBy = User
+
+	column 'Is Active'
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 52b69ef4-d93a-4efb-b97e-ab63c29255c7
+		summarizeBy: none
+		sourceColumn: Is Active
+
+		annotation SummarizationSetBy = User
+
+	partition 'Dim Price' = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Database("hvftbbgkikkevoothpm25ofa34-gddv6dy5kk6elj3pe4jcnmk4pi.datawarehouse.fabric.microsoft.com", "WH_testing"),
+				    dbo_fact_price_table = Source{[Schema="dbo",Item="dim_price"]}[Data],
+				    RenameColumns = Table.RenameColumns(dbo_fact_price_table,{
+				        {"sku", "SKU"},
+				        {"price", "Price"},
+				        {"created_at", "Created At"},
+				        {"updated_at", "Updated At"},
+				        {"deleted_at", "Deleted At"},
+				        {"updated_by", "Updated By"},
+				        {"version", "Version"},
+				        {"is_active", "Is Active"}
+				    })
+				in
+				    RenameColumns
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
