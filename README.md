@@ -4,6 +4,9 @@ Translytical Task Flows (TTF) combine transactional updates and analytical workf
 
 This repository provides a production-ready implementation pattern for **bulk CRUD operations** (INSERT, UPDATE, DELETE, REACTIVATE) with CDC visibility, enabling multi-row write-back directly from Power BI reports.
 
+Note: Updating more than 3 columns this way tends to feel clunky to users. For wider edits, consider an Excel shortcut from SharePoint instead.
+
+
 ## Table of Contents
 
 - [The Core Enablers: CONCATENATEX + STRING_SPLIT](#the-core-enablers-concatenatex--string_split)
@@ -209,6 +212,19 @@ with demo.connect() as conn:
 - Parameters use positional `?` placeholders—order matters
 - `conn.commit()` is required; without it, the transaction rolls back when the connection closes
 
+### Testing the UDF in Fabric UI
+
+1. To test your UDFs before adding them to PBI, hover over the function and click the flask; note that only the parameters not gathered at run-time (connection and context in this example) are required for the test.
+
+<img width="322" height="92" alt="image" src="https://github.com/user-attachments/assets/e99ee924-70ff-4662-ae28-c728bbf5c759" />
+
+
+2. Enter the values you want to test – good detail on errors
+3. Shows success/failure of custom error messages, too
+
+<img width="537" height="844" alt="image" src="https://github.com/user-attachments/assets/240223be-e12e-41a1-b119-cb3f477e36c2" />
+
+
 ---
 
 ## Power BI Wiring
@@ -220,6 +236,10 @@ with demo.connect() as conn:
 3. **Text slicer**: For user input (e.g., new price value)
 4. **Button**: Labeled "Update..." or similar, wired to trigger the UDF
 
+<img width="342" height="192" alt="image" src="https://github.com/user-attachments/assets/fa321e58-8db6-4a61-a0b3-17ef03d2dbd8" />
+
+<img width="227" height="583" alt="image" src="https://github.com/user-attachments/assets/55764b81-5cee-4de8-a3b7-0259f5a3a0e4" />
+
 ### Configuring the Button Action
 
 1. Select the button
@@ -229,9 +249,27 @@ with demo.connect() as conn:
    - `price` → Select the Text slicer from dropdown
    - ⚠️ **`ids` → You MUST click the `fx` button** to bind the `Selected Records` measure. The dropdown only shows slicers, not measures.
 
-### Slicer Settings
+<img width="278" height="739" alt="image" src="https://github.com/user-attachments/assets/7a0b4d3c-8a4a-433e-9bab-acaa8f9ea2b0" />
+
+<img width="456" height="306" alt="image" src="https://github.com/user-attachments/assets/54a70577-f3fe-4904-b21a-c93752d0bcd7" />
+
+
+<img width="103" height="80" alt="image" src="https://github.com/user-attachments/assets/f432dcdf-6297-4977-82e2-819645483c32" />
+
+<img width="256" height="182" alt="image" src="https://github.com/user-attachments/assets/4bc051ad-c5a8-43b6-b65c-dd695967bf44" />
+
+<img width="189" height="182" alt="image" src="https://github.com/user-attachments/assets/e1757cbe-84b1-40cf-b199-a9d9c2fe204b" />
+
+
+### Additional Button Settings
+
+For real-time refresh on the fashboard, you want **Refresh the report ... = On**
+
+<img width="243" height="41" alt="image" src="https://github.com/user-attachments/assets/deedbe22-cdd5-4cfc-aaa7-6234690fa662" />
 
 Consider enabling **Auto clear = On** for slicers so users don't accidentally reuse old input values on subsequent operations.
+
+<img width="243" height="50" alt="image" src="https://github.com/user-attachments/assets/af33cd1e-b0c7-4917-b8e0-5b8adca3ba1c" />
 
 ---
 
