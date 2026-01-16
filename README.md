@@ -165,6 +165,12 @@ Before deploying UDFs, you must configure a connection in the Fabric portal:
 3. Create a new connection pointing to your Warehouse or SQL Database
 4. Note the alias you assign (e.g., "demo")—this must match your decorator
 
+<img width="270" height="64" alt="image" src="https://github.com/user-attachments/assets/d859b1e5-4c5b-4136-a4a2-e5386682534b" />
+
+
+<img width="856" height="132" alt="image" src="https://github.com/user-attachments/assets/742c84d8-803b-432e-a66a-626528d1d55c" />
+
+
 ### Decorator Stack and Connection Usage
 
 The UDF uses three decorators that inject dependencies:
@@ -457,6 +463,13 @@ Add user groups to the function's accessibility settings, then grant Execute per
 
 ### Database Permissions
 
+Principle of Least Privilege:
+Share with user group (click ... on warehouse) → uncheck all "additional permissions"
+These settings deny direct reads but allow INSERT, UPDATE, and DELETE. Your actual configuration will depend on your requirements—model permissions (user context vs. connection pass-through) and RLS.
+
+<img width="297" height="452" alt="image" src="https://github.com/user-attachments/assets/7d153490-1832-4738-bb8c-c4b0f4a392b2" />
+
+
 Create roles with minimal DML grants:
 
 ```sql
@@ -466,7 +479,7 @@ GRANT INSERT, UPDATE, DELETE ON OBJECT::dbo.dim_price TO price_editors;
 GRANT INSERT ON OBJECT::dbo.dim_price_history TO price_editors;
 ```
 
-Test both successful execution AND denied access to verify your security model.
+**Test both successful execution AND denied access to verify your security model.**
 
 ---
 
