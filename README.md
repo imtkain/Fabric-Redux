@@ -4,6 +4,9 @@ Translytical Task Flows (TTF) combine transactional updates and analytical workf
 
 This repository provides a production-ready implementation pattern for **bulk CRUD operations** (INSERT, UPDATE, DELETE, REACTIVATE) with CDC visibility, enabling multi-row write-back directly from Power BI reports.
 
+This demo is simplified to illustrate the concepts. In practice, you'd use a satellite (or extension; think "sidecar") table with a foreign key to the main table. Edits happen in this satellite table, never directly against warehouse tables.
+Example: If you have fact_leads and want to capture user comments, create fact_lead_comments with a 1:1 relationship keyed to the lead. Your ETL process should auto-insert placeholder rows as new keys land in the main table. Alternatively, your stored procedures can create the row on-demand if it doesn't exist, but update it if it does exist. Your satellite table can then be in DQ mode to reflect changes in real-time.
+
 Note: Updating more than 3 columns this way tends to feel clunky to users. For wider edits, consider an Excel shortcut from SharePoint instead.
 
 
@@ -69,6 +72,10 @@ Lakehouse is **not supported** for this pattern—see [Why Not Lakehouse?](#why-
 
 ### DirectQuery Semantic Model
 DirectQuery is required so that committed changes are immediately visible in the report without manual refresh. This is what makes the translytical experience feel real-time.
+
+**Why not Direct Lake??** 
+[Read about Direct Lake framing!]([https://www.linkedin.com/pulse/multi-row-translytical-task-flows-microsoft-fabric-tony-kain](https://learn.microsoft.com/en-us/fabric/fundamentals/direct-lake-overview))
+Basically, every time you commit an update, you'd need to refresh the model to see the changes in real-time. If multiple users are editing at the same time, you'd have collisions.
 
 > ⚠️ **DirectQuery Datetime Precision Gotcha**: If using `datetime2(6)` columns, you may experience silent cross-filter failures. See [DirectQuery Datetime Precision Issue](#directquery-datetime-precision-issue) for details and the fix.
 
